@@ -10,16 +10,31 @@ def colorize(sheet_content):
     if not 'CHEATCOLORS' in os.environ:
         return sheet_content
 
+    # the language to colorize in
+    first_line = sheet_content.splitlines()[0]
+    if 'python' in first_line:
+        lang = 'python'
+    else:
+        lang = 'bash'
+
     try:
         from pygments import highlight
-        from pygments.lexers import BashLexer
+        if lang == 'bash':
+            from pygments.lexers import BashLexer
+            lexer = BashLexer
+        elif lang == 'python':
+            from pygments.lexers import PythonLexer
+            lexer = PythonLexer
         from pygments.formatters import TerminalFormatter
 
     # if pygments can't load, just return the uncolorized text
     except ImportError:
         return sheet_content
 
-    return highlight(sheet_content, BashLexer(), TerminalFormatter())
+    except Exception:
+        return sheet_content
+
+    return highlight(sheet_content, lexer(), TerminalFormatter())
 
 
 def die(message):
